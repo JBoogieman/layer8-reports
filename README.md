@@ -21,6 +21,19 @@ Lenovo reports a machine type code (21C5...) as the model. The report uses the n
 
 Uses only ConfigMgr's default hardware inventory, so it works on any site without changing client settings. Its query is in [reports/FleetByModel/FleetByModel.sql](reports/FleetByModel/FleetByModel.sql).
 
+### Boot times and crashes
+
+How long devices take to start and how often they stop unexpectedly, by model and BIOS version, so "these crashes started with that BIOS update" and "this model boots twice as slow" show up on their own.
+
+- **Boot time** is Windows' own measure, for the boots Windows timed: the median and 90th percentile per model and per BIOS version, and each device's median and slowest boot. Medians more than 25% slower than the collection's are flagged.
+- **Unexpected stops:** blue screens, and stops with no blue screen (power cut, a hard reset, or the power button held), counted per device and per 100 devices for each model.
+- **Every crash**, newest first, with its stop code, the code's name for the common ones (0x0000009F is DRIVER_POWER_STATE_FAILURE), and where Windows saved the dump.
+- Which devices haven't sent boot data, so gaps in coverage show instead of hiding.
+
+You choose the period: 30 days by default. Its queries are in [reports/BootTimesAndCrashes](reports/BootTimesAndCrashes).
+
+This report needs the collector below running on your devices.
+
 ## Install
 
 You need a reporting services point (if Microsoft's reports show under **Monitoring > Reporting > Reports** in the console, you have one) and permission to publish reports on that report server. From a copy of this repository:
@@ -39,9 +52,24 @@ The report server's address is in Report Server Configuration Manager, under **W
 
 Shows the rows the report would use, read with your own Windows account. Add `-OutFile <file>.csv` to save them, or `-Parameters @{ CollectionID = '<collection ID>' }` for another collection (All Systems by default).
 
-## Coming next
+## The boot and crash collector
 
-**Boot times and crashes:** how long devices take to start and how often they blue-screen, by model and BIOS version. Its collector, [collector/Layer8-BootAndCrash.ps1](collector/Layer8-BootAndCrash.ps1), reads each device's event logs into WMI for hardware inventory to pick up.
+[collector/Layer8-BootAndCrash.ps1](collector/Layer8-BootAndCrash.ps1) reads a device's last 30 days of boots and crashes from its event logs and puts them in two WMI classes, `Layer8_Boot` and `Layer8_Crash`, for hardware inventory to collect. It runs as SYSTEM, changes nothing on the device except those two classes, and works in Constrained Language Mode. `-Preview` shows what it would store without touching WMI.
+
+To set it up:
+
+1. **Sign it, if your clients' PowerShell execution policy is All Signed** (Client Settings, Computer Agent). Sign a copy with your code-signing certificate, and keep the original unsigned:
+   ```powershell
+   $cert = @(Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert)[0]
+   Copy-Item .\collector\Layer8-BootAndCrash.ps1 .\Layer8-BootAndCrash.signed.ps1
+   Set-AuthenticodeSignature .\Layer8-BootAndCrash.signed.ps1 -Certificate $cert -TimestampServer http://timestamp.digicert.com
+   ```
+   The clients must trust the certificate: its issuer in Trusted Root Certification Authorities, and the certificate itself in Trusted Publishers (Group Policy can put it in both).
+2. **Run it once on one device** (as an administrator), so its two classes exist there.
+3. **Add the classes to hardware inventory:** Client Settings, Hardware Inventory, Set Classes, Add, Connect to that device's `root\cimv2`, and tick `Layer8_Boot` and `Layer8_Crash`.
+4. **Run it every day with a configuration baseline:** a configuration item with one setting (setting type Script, data type String) whose discovery script is the collector (signed or not, as step 1 decided), not run with the logged-on user's credentials. Add a compliance rule that the value begins with `Layer8 boot and crash collector` (the line it prints when it finishes), reporting noncompliance when the setting isn't found, so a failed run shows. Put it in a baseline and deploy that to your devices on a daily schedule.
+
+The site gets new boot data at each device's next hardware inventory, which Default Client Settings runs every 7 days.
 
 ## License
 
