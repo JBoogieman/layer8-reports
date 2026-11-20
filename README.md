@@ -15,11 +15,13 @@ Devices in a collection, grouped by model family and generation, so ThinkPad L14
 - **Not seen:** no contact with the site recently. It's in a drawer, or gone.
 - **Unknown:** the site has no sign-in data for it.
 
-You choose what counts as recent: 30 days by default. Beside the counts: the Windows release (by name, like 24H2), RAM, the lowest free space on C:, BIOS versions (a model running three different BIOS versions says so), last sign-in, top user and serial number. A chart shows the largest families by status.
+You choose what counts as recent (30 days by default), and whether every device is listed from the start or only when you open its model ("Show every device", handy for a PDF). Beside the counts: the Windows release (by name, like 24H2), RAM, the lowest free space on C:, BIOS versions (a model running three different BIOS versions says so), last sign-in, top user and serial number. A chart shows the largest families by status.
 
 Lenovo reports a machine type code (21C5...) as the model. The report uses the name people know instead ("ThinkPad L14 Gen 3"), from the same inventory.
 
 Uses only ConfigMgr's default hardware inventory, so it works on any site without changing client settings. Its query is in [reports/FleetByModel/FleetByModel.sql](reports/FleetByModel/FleetByModel.sql).
+
+![Fleet by model, from a two-VM lab](docs/images/fleet-by-model.png)
 
 ### Boot times and crashes
 
@@ -30,7 +32,9 @@ How long devices take to start and how often they stop unexpectedly, by model an
 - **Every crash**, newest first, with its stop code, the code's name for the common ones (0x0000009F is DRIVER_POWER_STATE_FAILURE), and where Windows saved the dump.
 - Which devices haven't sent boot data, so gaps in coverage show instead of hiding.
 
-You choose the period: 30 days by default. Its queries are in [reports/BootTimesAndCrashes](reports/BootTimesAndCrashes).
+You choose the period (30 days by default) and, as in Fleet by model, whether every device is listed. Its queries are in [reports/BootTimesAndCrashes](reports/BootTimesAndCrashes).
+
+![Boot times and crashes, from a two-VM lab, with one deliberate blue screen](docs/images/boot-times-and-crashes.png)
 
 This report needs the collector below running on your devices.
 
