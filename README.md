@@ -38,6 +38,21 @@ You choose the period (30 days by default) and, as in Fleet by model, whether ev
 
 This report needs the collector below running on your devices.
 
+### Hardware lifecycle
+
+Which model generations leave the fleet fastest, and what replaces them. ConfigMgr keeps a device only until site maintenance deletes it, so no report can count how many of a model died over the years. This one measures turnover over the last few months instead: of the devices that were there when that window began, how many have gone quiet since, as a rate per year for each model family and generation.
+
+- **Gone quiet:** no contact with the site for 30 days (dead, retired, or in a drawer).
+- **Per year:** the share of each generation that went quiet, scaled up to a year. A generation going quiet at least twice as fast as the whole collection, with at least 10 devices at the start, shows in red.
+- **Likely replaced:** the top user of a device that went quiet got a new device in the window, and it's still active. Old and new are paired one to one by the closest dates, and the report lists the most common paths, like ThinkPad L14 Gen 1 to L14 Gen 3. A shared device, or someone with two laptops, can be paired wrongly, hence "likely".
+- **Age, arrivals and rebuilds:** age is years since the site first saw the device's serial number, not since purchase. A rebuild that gave the device a new record doesn't reset its age or count as an arrival while the site still has the old record, and the device is marked as rebuilt.
+
+Set the window to your site's **Delete Aged Discovery Data** setting (90 days by default): a device quiet for longer may already be deleted, and a deleted device can't be counted. You also choose how many days without contact count as gone quiet (30 by default), and, as in the other reports, whether every device is listed. It uses the same inventory as Fleet by model, so it needs no changes to client settings. Its query is in [reports/HardwareLifecycle/HardwareLifecycle.sql](reports/HardwareLifecycle/HardwareLifecycle.sql).
+
+Shown here on a made-up fleet of 224 laptops, because nothing in the two-VM lab has gone quiet yet:
+
+![Hardware lifecycle, on a made-up sample fleet of 224 laptops](docs/images/hardware-lifecycle.png)
+
 ## Install
 
 You need a reporting services point (if Microsoft's reports show under **Monitoring > Reporting > Reports** in the console, you have one) and permission to publish reports on that report server. From a copy of this repository:
