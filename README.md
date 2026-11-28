@@ -53,6 +53,22 @@ Shown here on a made-up fleet of 224 laptops, because nothing in the two-VM lab 
 
 ![Hardware lifecycle, on a made-up sample fleet of 224 laptops](docs/images/hardware-lifecycle.png)
 
+### Windows releases
+
+Which Windows release each device runs, measured against a target release, and why each device that's behind is behind. You choose the target from the releases in the collection. By default it's the release Windows itself offers most of the collection's devices, so a few new laptops on a hardware-specific release don't make everything else look behind.
+
+- **On target, behind or newer:** each device against the target. LTSC releases, which don't take feature updates, and servers aren't counted. Devices still on Windows 10 are counted as behind, and shown on their own.
+- **Why behind:** Windows' own compatibility check on the device, which hardware inventory collects (Upgrade Experience Indicators). Either it names the hardware that stops the update (the processor, the TPM, UEFI and Secure Boot, memory, or disk space), or there's nothing in the way and the update just hasn't happened. Microsoft doesn't document the codes the check uses, so the report matches them by keyword and shows any it doesn't recognize as they are.
+- **On it since:** when the device got its current release. Every feature update resets the date.
+
+A table of releases, newest first, gives each one's devices, share and blocked devices. The table by model gives the same per family, generation and device, with each device's last contact, so a device that's behind because it's been switched off for a month stands out.
+
+Release names come from a list in the query. A release that isn't on it yet shows as "Windows 11 (build N)" until a line is added. The queries are in [reports/WindowsReleases](reports/WindowsReleases).
+
+Shown here on a made-up fleet of 274 devices, because both VMs in the lab run the target release:
+
+![Windows releases, on a made-up sample fleet of 274 devices](docs/images/windows-releases.png)
+
 ## Install
 
 You need a reporting services point (if Microsoft's reports show under **Monitoring > Reporting > Reports** in the console, you have one) and permission to publish reports on that report server. From a copy of this repository:
@@ -70,6 +86,12 @@ The report server's address is in Report Server Configuration Manager, under **W
 ```
 
 Shows the rows the report would use, read with your own Windows account. Add `-OutFile <file>.csv` to save them, or `-Parameters @{ CollectionID = '<collection ID>' }` for another collection (All Systems by default).
+
+## Changing a report
+
+Each report's query is the .sql file in its folder, and the same query is inside the .rdl. Windows releases is built from its queries by the `Build-Report.ps1` in its folder, which uses [tools/RdlBuilder.psm1](tools/RdlBuilder.psm1) for everything the reports share. To change it, edit the query or the script, run the script, then run `Install-Reports.ps1`. The older reports are edited as .rdl files; keep each one's query the same as its .sql.
+
+The report server runs the queries as ConfigMgr's reporting account, whose database role (smsschm_users) can read the `v_` views and the `fn_rbac_` functions, but not everything an administrator can. A query that works in `Invoke-ReportQuery.ps1`, which runs as you, can still fail in the report, so use only what that role is granted.
 
 ## The boot and crash collector
 

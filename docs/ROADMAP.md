@@ -25,14 +25,6 @@ Each item is tagged with where its data comes from.
 
 ## Backlog
 
-### 4. Windows builds and feature-update spread
-
-**Data:** Discovery, Inventory (Operating System, Upgrade Experience Indicators), Servicing. **Lab:** yes, but a single build.
-
-Devices per Windows release and build, by collection and model, with devices on releases older than the collection's newest, and releases near or past the end of servicing. For a device that's behind, Windows' own verdict on whether it can take the newest release says why it's stuck: the compatibility check Windows runs on each device names the hardware that stops it (processor, TPM, UEFI and Secure Boot, memory, disk space).
-
-Both lab VMs run the same build, the newest, so testing a spread, and a device stuck behind it, needs a VM on an older release.
-
 ### 5. Disk space trouble
 
 **Data:** Inventory (Logical Disk), History (Logical Disk). **Lab:** yes.
@@ -80,6 +72,7 @@ Items keep their numbers once done.
 - **0. README section and screenshot for Hardware lifecycle** (November 27, 2026).
 - **1. The UTC date bugs** (November 27, 2026). Every date is now compared with the clock it was stored in. A client's last contact, record creation dates and the collector's boot and crash times are UTC. Last sign-in is the device's own local time. UTC times are shown in the database server's time zone.
 - **2. Data-freshness footer** (November 27, 2026). Every report's page footer gives three things for its collection: the newest hardware inventory, the median age of the devices' latest inventory, and how many devices haven't sent any. The median says how current the figures are, where the newest alone wouldn't. All reports share one query, [reports/DataFreshness.sql](../reports/DataFreshness.sql).
+- **4. Windows releases** (November 27, 2026). The release each device runs against a target (by default the release Windows offers most of the devices), and for each device that's behind, Windows' own verdict on why. Two things changed from the plan. Support status is left out: the site's servicing data is stale, and still showed Windows 11 21H2 as current. And release names come from a list in the query, because the servicing data's names are in a view the report server's account can't read. The first report built with tools/RdlBuilder.psm1.
 
 ## Dropped
 
