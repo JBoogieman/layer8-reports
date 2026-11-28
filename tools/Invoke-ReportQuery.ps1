@@ -20,7 +20,7 @@
 
 .PARAMETER Parameters
     Values for the query's parameters, without the @. Defaults: CollectionID SMS00001 (All Systems), IdleDays 30,
-    Days 30, WindowDays 90.
+    Days 30, WindowDays 90, TargetBuild 0 (the release Windows offers).
 
 .PARAMETER OutFile
     Save the rows to this CSV file instead of showing them.
@@ -40,7 +40,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$values = @{ UserSIDs = 'disabled'; CollectionID = 'SMS00001'; IdleDays = 30; Days = 30; WindowDays = 90 }
+$values = @{ UserSIDs = 'disabled'; CollectionID = 'SMS00001'; IdleDays = 30; Days = 30; WindowDays = 90; TargetBuild = 0 }
 foreach ($name in $Parameters.Keys) { $values[$name] = $Parameters[$name] }
 
 $sql = Get-Content -Path $Path -Raw

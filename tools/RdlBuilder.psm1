@@ -240,12 +240,19 @@ function New-RdlModelTable {
 
 function New-RdlSummaryTable {
     <#
-    A table of the devices grouped by one expression, most common first, with a total row. Columns are @{ HeadName;
-    Header; Width; Align }. Filter, when given, is @(expression, value): only devices where they're equal are counted.
+    A table of the devices grouped by one expression, with a total row: most common first, or in the order of
+    SortExpression when given. Columns are @{ HeadName; Header; Width; Align }. Filter, when given, is
+    @(expression, value): only devices where they're equal are counted.
     #>
     param([Parameter(Mandatory)][string]$Name, [Parameter(Mandatory)][object[]]$Columns, [Parameter(Mandatory)][string]$GroupName,
           [Parameter(Mandatory)][string]$GroupExpression, [Parameter(Mandatory)][string[]]$GroupCells, [Parameter(Mandatory)][string[]]$TotalCells,
-          [string[]]$Filter, [Parameter(Mandatory)][string]$NoRowsMessage, [Parameter(Mandatory)][string]$Top, [string]$DataSetName = 'Devices')
+          [string[]]$Filter, [Parameter(Mandatory)][string]$NoRowsMessage, [Parameter(Mandatory)][string]$Top, [string]$DataSetName = 'Devices',
+          [string]$SortExpression, [ValidateSet('Ascending', 'Descending')][string]$SortDirection = 'Descending')
+    $sort = if ($SortExpression) {
+        '<SortExpressions><SortExpression><Value>' + (ConvertTo-RdlText $SortExpression) + '</Value><Direction>' + $SortDirection + '</Direction></SortExpression></SortExpressions>'
+    } else {
+        '<SortExpressions><SortExpression><Value>=CountRows()</Value><Direction>Descending</Direction></SortExpression><SortExpression><Value>' + (ConvertTo-RdlText $GroupExpression) + '</Value></SortExpression></SortExpressions>'
+    }
     foreach ($row in $GroupCells, $TotalCells) {
         if ($row.Count -ne $Columns.Count) { throw "A row has $($row.Count) cells for $($Columns.Count) columns." }
     }
@@ -259,7 +266,7 @@ function New-RdlSummaryTable {
   <TablixMember><KeepWithGroup>After</KeepWithGroup><RepeatOnNewPage>true</RepeatOnNewPage></TablixMember>
   <TablixMember>
     <Group Name="' + $GroupName + '"><GroupExpressions><GroupExpression>' + (ConvertTo-RdlText $GroupExpression) + '</GroupExpression></GroupExpressions></Group>
-    <SortExpressions><SortExpression><Value>=CountRows()</Value><Direction>Descending</Direction></SortExpression><SortExpression><Value>' + (ConvertTo-RdlText $GroupExpression) + '</Value></SortExpression></SortExpressions>
+    ' + $sort + '
   </TablixMember>
   <TablixMember><KeepWithGroup>Before</KeepWithGroup></TablixMember>
 </TablixMembers></TablixRowHierarchy>
@@ -323,11 +330,21 @@ function Get-RdlFooter {
     '</Color></Style></TextRun></TextRuns><Style></Style></Paragraph></Paragraphs><Style><VerticalAlign>Middle</VerticalAlign><PaddingLeft>0pt</PaddingLeft><PaddingRight>3pt</PaddingRight><PaddingTop>2pt</PaddingTop><PaddingBottom>2pt</PaddingBottom><Border><Style>None</Style></Border></Style></Textbox></ReportItems><Style /></PageFooter>'
 }
 
-function New-RdlParameter([string]$Name, [ValidateSet('String', 'Integer', 'Boolean')][string]$Type, [string]$Default, [string]$Prompt) {
-    # A report parameter the reader sets, for New-RdlReport's -Parameters.
-    '<ReportParameter Name="' + $Name + '"><DataType>' + $Type + '</DataType>
+function New-RdlParameter {
+    # A report parameter the reader sets, for New-RdlReport's -Parameters. With DataSet, it's a drop-down of that
+    # dataset's rows (ValueField, shown as LabelField), and its default is the first row.
+    param([Parameter(Mandatory)][string]$Name, [Parameter(Mandatory)][ValidateSet('String', 'Integer', 'Boolean')][string]$Type,
+          [string]$Default, [Parameter(Mandatory)][string]$Prompt, [string]$DataSet, [string]$ValueField, [string]$LabelField)
+    if ($DataSet) {
+        '<ReportParameter Name="' + $Name + '"><DataType>' + $Type + '</DataType>
+  <DefaultValue><DataSetReference><DataSetName>' + $DataSet + '</DataSetName><ValueField>' + $ValueField + '</ValueField></DataSetReference></DefaultValue>
+  <Prompt>' + (ConvertTo-RdlText $Prompt) + '</Prompt>
+  <ValidValues><DataSetReference><DataSetName>' + $DataSet + '</DataSetName><ValueField>' + $ValueField + '</ValueField><LabelField>' + $LabelField + '</LabelField></DataSetReference></ValidValues></ReportParameter>'
+    } else {
+        '<ReportParameter Name="' + $Name + '"><DataType>' + $Type + '</DataType>
   <DefaultValue><Values><Value>' + (ConvertTo-RdlText $Default) + '</Value></Values></DefaultValue>
   <Prompt>' + (ConvertTo-RdlText $Prompt) + '</Prompt></ReportParameter>'
+    }
 }
 
 function New-RdlReport {
