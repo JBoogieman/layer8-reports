@@ -66,7 +66,7 @@ Boots AS (
     SELECT d.ResourceID, d.Model, d.BiosVersion, b.BootStart0 AS BootStart, b.BootTimeMs0 / 1000.0 AS BootSeconds
     FROM Devices d
     JOIN v_GS_LAYER8_BOOT b ON b.ResourceID = d.ResourceID
-    WHERE b.BootStart0 >= DATEADD(day, -@Days, GETDATE())
+    WHERE b.BootStart0 >= DATEADD(day, -@Days, GETUTCDATE())   -- the collector's times are UTC
 ),
 Timed AS (
     -- Boot time is Windows' own figure (Diagnostics-Performance event 100): from power on until the desktop is ready
@@ -97,7 +97,7 @@ Crashes AS (
     SELECT c.ResourceID, c.Kind0 AS Kind, c.BugcheckCode0 AS BugcheckCode, c.DetectedAt0 AS DetectedAt
     FROM Devices d
     JOIN v_GS_LAYER8_CRASH c ON c.ResourceID = d.ResourceID
-    WHERE c.DetectedAt0 >= DATEADD(day, -@Days, GETDATE())
+    WHERE c.DetectedAt0 >= DATEADD(day, -@Days, GETUTCDATE())
 ),
 CrashesByDevice AS (
     -- Blue screens, and stops with no blue screen: power lost, a hard reset, or the power button held down.

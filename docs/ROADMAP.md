@@ -25,18 +25,6 @@ Each item is tagged with where its data comes from.
 
 ## Backlog
 
-### 0. README section and screenshot for Hardware lifecycle
-
-**Data:** Inventory, Discovery, Client health. **Lab:** yes.
-
-The report is done. It needs a section in the README and a screenshot, like the other two.
-
-### 1. Fix the UTC date bugs
-
-**Data:** Client health. **Lab:** yes.
-
-ConfigMgr stores a client's last contact (`LastActiveTime`) in UTC. Fleet by model's Not seen check compares it with the database server's local time, so it's off by the server's UTC offset. Hardware lifecycle's Last active column shows the UTC date, so a device last seen in the evening shows tomorrow's date. Both are small. Fixing them first keeps the new reports from copying the mistake.
-
 ### 2. Data-freshness footer on every report
 
 **Data:** Client health (last hardware inventory), Inventory (Workstation Status). **Lab:** yes.
@@ -98,3 +86,10 @@ The class is on in the lab, but it stays empty until a BitLocker management poli
 Devices whose antimalware signatures are out of date, or whose real-time protection is off.
 
 The lab's client settings don't manage Endpoint Protection, so there's nothing to report yet. It needs that turned on, or Defender's own status class (`MSFT_MpComputerStatus`) added to hardware inventory.
+
+## Done
+
+Items keep their numbers once done.
+
+- **0. README section and screenshot for Hardware lifecycle** (November 27, 2026).
+- **1. The UTC date bugs** (November 27, 2026). Every date is now compared with the clock it was stored in. A client's last contact, record creation dates and the collector's boot and crash times are UTC. Last sign-in is the device's own local time. UTC times are shown in the database server's time zone.

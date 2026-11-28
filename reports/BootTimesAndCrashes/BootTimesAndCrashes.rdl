@@ -91,7 +91,7 @@ Boots AS (
     SELECT d.ResourceID, d.Model, d.BiosVersion, b.BootStart0 AS BootStart, b.BootTimeMs0 / 1000.0 AS BootSeconds
     FROM Devices d
     JOIN v_GS_LAYER8_BOOT b ON b.ResourceID = d.ResourceID
-    WHERE b.BootStart0 &gt;= DATEADD(day, -@Days, GETDATE())
+    WHERE b.BootStart0 &gt;= DATEADD(day, -@Days, GETUTCDATE())   -- the collector's times are UTC
 ),
 Timed AS (
     -- Boot time is Windows' own figure (Diagnostics-Performance event 100): from power on until the desktop is ready
@@ -122,7 +122,7 @@ Crashes AS (
     SELECT c.ResourceID, c.Kind0 AS Kind, c.BugcheckCode0 AS BugcheckCode, c.DetectedAt0 AS DetectedAt
     FROM Devices d
     JOIN v_GS_LAYER8_CRASH c ON c.ResourceID = d.ResourceID
-    WHERE c.DetectedAt0 &gt;= DATEADD(day, -@Days, GETDATE())
+    WHERE c.DetectedAt0 &gt;= DATEADD(day, -@Days, GETUTCDATE())
 ),
 CrashesByDevice AS (
     -- Blue screens, and stops with no blue screen: power lost, a hard reset, or the power button held down.
@@ -283,7 +283,7 @@ SELECT
     c.DumpFile0 AS DumpFile
 FROM Devices d
 JOIN v_GS_LAYER8_CRASH c ON c.ResourceID = d.ResourceID
-WHERE c.DetectedAt0 &gt;= DATEADD(day, -@Days, GETDATE())
+WHERE c.DetectedAt0 &gt;= DATEADD(day, -@Days, GETUTCDATE())   -- the collector's times are UTC
 ORDER BY c.DetectedAt0 DESC, d.Device;
 </CommandText><Timeout>600</Timeout></Query>
   <Fields><Field Name="Device"><DataField>Device</DataField><rd:TypeName>System.String</rd:TypeName></Field><Field Name="Model"><DataField>Model</DataField><rd:TypeName>System.String</rd:TypeName></Field><Field Name="BiosVersion"><DataField>BiosVersion</DataField><rd:TypeName>System.String</rd:TypeName></Field><Field Name="DetectedAt"><DataField>DetectedAt</DataField><rd:TypeName>System.DateTime</rd:TypeName></Field><Field Name="Kind"><DataField>Kind</DataField><rd:TypeName>System.String</rd:TypeName></Field><Field Name="BugcheckCode"><DataField>BugcheckCode</DataField><rd:TypeName>System.String</rd:TypeName></Field><Field Name="BugcheckName"><DataField>BugcheckName</DataField><rd:TypeName>System.String</rd:TypeName></Field><Field Name="BugcheckParameters"><DataField>BugcheckParameters</DataField><rd:TypeName>System.String</rd:TypeName></Field><Field Name="DumpFile"><DataField>DumpFile</DataField><rd:TypeName>System.String</rd:TypeName></Field></Fields>

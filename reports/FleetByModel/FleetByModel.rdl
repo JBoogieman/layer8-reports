@@ -74,8 +74,8 @@ Base AS (
         CAST(disk.FreeSpace0 / 1024.0 AS decimal(9, 1)) AS CFreeGB,
         CAST(disk.Size0 / 1024.0 AS decimal(9, 1)) AS CSizeGB,
         sys.Creation_Date0 AS FirstSeen,
-        ch.LastActiveTime AS LastActive,
-        con.LastConsoleUse AS LastSignIn,
+        ch.LastActiveTime AS LastActive,     -- UTC, so it's compared with GETUTCDATE()
+        con.LastConsoleUse AS LastSignIn,    -- the device's local time, so it's compared with GETDATE()
         cu.TopConsoleUser0 AS TopUser,
         ch.LastHW AS LastInventory,
         -- The site's own flag misses some hypervisors (Proxmox/KVM, for one), so the hardware's name counts too.
@@ -144,9 +144,9 @@ SELECT
     -- In use: talked to the site and someone signed in at it recently. Unused: on and talking to the site, but nobody
     -- signed in (the one to reclaim). Not seen: hasn't talked to the site recently (in a drawer, or gone).
     CASE
-        WHEN LastActive IS NULL OR LastActive &lt; DATEADD(day, -@IdleDays, GETDATE()) THEN 'Not seen'
-        WHEN LastSignIn &gt;= DATEADD(day, -@IdleDays, GETDATE())                    THEN 'In use'
-        WHEN HasConsoleUsage = 0                                                  THEN 'Unknown'
+        WHEN LastActive IS NULL OR LastActive &lt; DATEADD(day, -@IdleDays, GETUTCDATE()) THEN 'Not seen'
+        WHEN LastSignIn &gt;= DATEADD(day, -@IdleDays, GETDATE())                       THEN 'In use'
+        WHEN HasConsoleUsage = 0                                                     THEN 'Unknown'
         ELSE 'Unused'
     END AS Status,
     LastSignIn,

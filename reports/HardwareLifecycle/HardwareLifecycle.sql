@@ -64,12 +64,12 @@ Base AS (
             ELSE ISNULL(NULLIF(LTRIM(RTRIM(cs.Model0)), ''), 'Unknown')
         END AS Model,
         ISNULL(NULLIF(LTRIM(RTRIM(csp.IdentifyingNumber0)), ''), bios.SerialNumber0) AS Serial,
-        sys.Creation_Date0 AS FirstSeen,     -- this record's creation: resets if a rebuild makes a new record
+        sys.Creation_Date0 AS FirstSeen,     -- this record's creation (UTC): resets if a rebuild makes a new record
         os.InstallDate0 AS OSInstalled,      -- resets at every reimage
         bios.SMBIOSBIOSVersion0 AS BiosVersion,
         bios.ReleaseDate0 AS BiosDate,       -- the installed firmware's date: moves with every BIOS update
         ch.LastActiveTime AS LastActive,     -- UTC, so it's compared with GETUTCDATE()
-        con.LastConsoleUse AS LastSignIn,
+        con.LastConsoleUse AS LastSignIn,    -- the device's local time, so it's compared with GETDATE()
         NULLIF(LTRIM(RTRIM(cu.TopConsoleUser0)), '') AS TopUser,
         CASE WHEN cu.ResourceID IS NULL THEN 0 ELSE 1 END AS HasConsoleUsage
     FROM fn_rbac_FullCollectionMembership(@UserSIDs) fcm
@@ -118,12 +118,13 @@ Devices AS (
 Flagged AS (
     SELECT
         d.*,
+        -- FirstSeenEver is a record creation date, which the site keeps in UTC.
         -- There at the start of the window: first seen before it, and still in contact when it began.
-        CASE WHEN d.FirstSeenEver < DATEADD(day, -@WindowDays, GETDATE()) AND d.Lifecycle IN ('Active', 'Gone quiet')
+        CASE WHEN d.FirstSeenEver < DATEADD(day, -@WindowDays, GETUTCDATE()) AND d.Lifecycle IN ('Active', 'Gone quiet')
              THEN 1 ELSE 0 END AS AtStart,
-        CASE WHEN d.FirstSeenEver >= DATEADD(day, -@WindowDays, GETDATE()) THEN 1 ELSE 0 END AS Arrived,
+        CASE WHEN d.FirstSeenEver >= DATEADD(day, -@WindowDays, GETUTCDATE()) THEN 1 ELSE 0 END AS Arrived,
         CASE WHEN d.Records > 1 THEN 1 ELSE 0 END AS Rebuilt,
-        CAST(DATEDIFF(day, d.FirstSeenEver, GETDATE()) / 365.25 AS decimal(4, 1)) AS AgeYears
+        CAST(DATEDIFF(day, d.FirstSeenEver, GETUTCDATE()) / 365.25 AS decimal(4, 1)) AS AgeYears
     FROM Devices d
 ),
 Counted AS (
@@ -171,7 +172,8 @@ SELECT
         ELSE 'Unused'
     END AS Status,
     c.Lifecycle,
-    c.LastActive,
+    -- UTC in the site; shown in the site database server's time zone, like the other reports' times.
+    DATEADD(minute, DATEDIFF(minute, GETUTCDATE(), GETDATE()), c.LastActive) AS LastActive,
     c.TopUser,
     p.Device AS ReplacedBy,
     p.Model AS ReplacedByModel,

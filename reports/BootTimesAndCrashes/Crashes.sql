@@ -98,5 +98,5 @@ SELECT
     c.DumpFile0 AS DumpFile
 FROM Devices d
 JOIN v_GS_LAYER8_CRASH c ON c.ResourceID = d.ResourceID
-WHERE c.DetectedAt0 >= DATEADD(day, -@Days, GETDATE())
+WHERE c.DetectedAt0 >= DATEADD(day, -@Days, GETUTCDATE())   -- the collector's times are UTC
 ORDER BY c.DetectedAt0 DESC, d.Device;
