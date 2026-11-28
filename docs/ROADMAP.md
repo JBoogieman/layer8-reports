@@ -25,21 +25,13 @@ Each item is tagged with where its data comes from.
 
 ## Backlog
 
-### 3. Windows 11 readiness by model
-
-**Data:** Inventory: Upgrade Experience Indicators, TPM, TPM Status, Firmware, Processor, Memory, Logical Disk. **Lab:** yes.
-
-For each model and device, Windows' own upgrade compatibility verdict and its reason (from the compatibility appraiser on the device), next to the raw requirements: TPM 2.0 ready, UEFI with Secure Boot, CPU, RAM and the size of C:. Shows which models block the upgrade, and why.
-
-In the lab, one VM is Red for Memory (3 GB) and the other is Green, so a real failure can be tested.
-
 ### 4. Windows builds and feature-update spread
 
-**Data:** Discovery, Inventory (Operating System), Servicing. **Lab:** yes, but a single build.
+**Data:** Discovery, Inventory (Operating System, Upgrade Experience Indicators), Servicing. **Lab:** yes, but a single build.
 
-Devices per Windows release and build, by collection and model, with devices on releases older than the collection's newest, and releases near or past the end of servicing.
+Devices per Windows release and build, by collection and model, with devices on releases older than the collection's newest, and releases near or past the end of servicing. For a device that's behind, Windows' own verdict on whether it can take the newest release says why it's stuck: the compatibility check Windows runs on each device names the hardware that stops it (processor, TPM, UEFI and Secure Boot, memory, disk space).
 
-Both lab VMs run the same build, so testing a real spread needs a VM on an older release.
+Both lab VMs run the same build, the newest, so testing a spread, and a device stuck behind it, needs a VM on an older release.
 
 ### 5. Disk space trouble
 
@@ -88,3 +80,7 @@ Items keep their numbers once done.
 - **0. README section and screenshot for Hardware lifecycle** (November 27, 2026).
 - **1. The UTC date bugs** (November 27, 2026). Every date is now compared with the clock it was stored in. A client's last contact, record creation dates and the collector's boot and crash times are UTC. Last sign-in is the device's own local time. UTC times are shown in the database server's time zone.
 - **2. Data-freshness footer** (November 27, 2026). Every report's page footer gives three things for its collection: the newest hardware inventory, the median age of the devices' latest inventory, and how many devices haven't sent any. The median says how current the figures are, where the newest alone wouldn't. All reports share one query, [reports/DataFreshness.sql](../reports/DataFreshness.sql).
+
+## Dropped
+
+- **3. Windows 11 readiness by model** (dropped November 27, 2026). Most fleets are on Windows 11 already. Windows also checks each device against the newest release, so for a device that's up to date, "ready for the next release" says nothing. The useful part, Windows' own verdict on hardware the newest release won't accept, moves into item 4.
