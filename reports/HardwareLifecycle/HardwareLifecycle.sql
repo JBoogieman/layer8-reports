@@ -14,10 +14,10 @@
 -- ConfigMgr deletes devices that stop checking in, so it can't say how many of a generation died over years. What it
 -- can say is how many went quiet over the last few months, out of how many there were. That is the rate here.
 --
--- A likely replacement: a device that went quiet, and a device that arrived in the window and is still active, with the
--- same top console user. Each old device gets at most one, the new device first seen closest to when the old one went
--- quiet, and each new device replaces at most one. Someone with two laptops, or a shared device, can be paired wrongly,
--- so the report calls these likely replacements.
+-- A likely replacement: a device that was here when the window began and has gone quiet, and a device that arrived in
+-- the window and is still active, with the same top console user. Each old device gets at most one, the new device
+-- first seen closest to when the old one went quiet, and each new device replaces at most one. Someone with two laptops,
+-- or a shared device, can be paired wrongly, so the report calls these likely replacements.
 --
 -- Group figures are worked out here because the report server has no median. Every device row carries its
 -- generation's figures; the report shows them once a group.
@@ -142,7 +142,9 @@ Candidates AS (
         ROW_NUMBER() OVER (PARTITION BY n.ResourceID ORDER BY ABS(DATEDIFF(hour, n.FirstSeenEver, o.LastActive)), o.ResourceID) AS ForNew
     FROM Counted o
     JOIN Counted n ON n.TopUser = o.TopUser AND n.ResourceID <> o.ResourceID
-    WHERE o.Lifecycle = 'Gone quiet'
+    -- Only devices that were here at the start. A loaner that came and went inside the window would otherwise be the
+    -- closest match for the new device and take it, and the laptop it stood in for would show as not replaced.
+    WHERE o.Departed = 1
       AND n.Arrived = 1 AND n.Lifecycle = 'Active'
 ),
 Pairs AS (
