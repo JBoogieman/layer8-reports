@@ -25,12 +25,6 @@ Each item is tagged with where its data comes from.
 
 ## Backlog
 
-### 2. Data-freshness footer on every report
-
-**Data:** Client health (last hardware inventory), Inventory (Workstation Status). **Lab:** yes.
-
-A line at the foot of each report: the newest hardware inventory the site has for the collection, and how many of its devices have none. A reader can then see how current the figures are. This goes before the new reports so each one ships with it.
-
 ### 3. Windows 11 readiness by model
 
 **Data:** Inventory: Upgrade Experience Indicators, TPM, TPM Status, Firmware, Processor, Memory, Logical Disk. **Lab:** yes.
@@ -93,3 +87,4 @@ Items keep their numbers once done.
 
 - **0. README section and screenshot for Hardware lifecycle** (November 27, 2026).
 - **1. The UTC date bugs** (November 27, 2026). Every date is now compared with the clock it was stored in. A client's last contact, record creation dates and the collector's boot and crash times are UTC. Last sign-in is the device's own local time. UTC times are shown in the database server's time zone.
+- **2. Data-freshness footer** (November 27, 2026). Every report's page footer gives three things for its collection: the newest hardware inventory, the median age of the devices' latest inventory, and how many devices haven't sent any. The median says how current the figures are, where the newest alone wouldn't. All reports share one query, [reports/DataFreshness.sql](../reports/DataFreshness.sql).

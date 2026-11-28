@@ -2,7 +2,7 @@
 
 ConfigMgr reports on how your Windows fleet treats the people using it: model generations, idle hardware, app usage, boot times, crashes and hardware health. A companion to [Layer8](https://github.com/JBoogieman/layer8).
 
-The reports run in your own ConfigMgr report server, next to Microsoft's. They respect each reader's security scopes the same way Microsoft's reports do.
+The reports run in your own ConfigMgr report server, next to Microsoft's. They respect each reader's security scopes the same way Microsoft's reports do. Each one says at its foot how current the hardware inventory behind it is: the newest, the median age, and how many devices haven't sent any.
 
 ## Reports
 
