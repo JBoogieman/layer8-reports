@@ -67,8 +67,8 @@ if ($files.Count -eq 0) { throw 'No reports to publish.' }
 
 foreach ($file in $files) {
     # FleetByModel.rdl is published as "Fleet by model", the way Microsoft names its reports, and
-    # Windows11Readiness.rdl as "Windows 11 readiness".
-    $words = @([regex]::Split($file.BaseName, '(?<=[a-z])(?=[A-Z0-9])|(?<=[0-9])(?=[A-Z])'))
+    # BIOSVersions.rdl as "BIOS versions": a run of capitals stays one word.
+    $words = @([regex]::Split($file.BaseName, '(?<=[a-z])(?=[A-Z0-9])|(?<=[0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])'))
     $title = (@($words[0]) + @($words | Select-Object -Skip 1 | ForEach-Object { $_.ToLower() })) -join ' '
 
     $definition = New-Object System.Xml.XmlDocument

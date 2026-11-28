@@ -84,6 +84,21 @@ Shown here on a made-up fleet of 248 devices. In the two-VM lab, both VMs are ru
 
 ![Disk space, on a made-up sample fleet of 248 devices](docs/images/disk-space.png)
 
+### BIOS versions
+
+How many BIOS versions each model runs, how old the installed firmware is, and which devices are behind, by model family and generation.
+
+- **Newest:** the newest BIOS seen on that exact model in your site, judged by release date, because vendors' version strings don't compare. No vendor catalog is used, so a model whose every device is behind the vendor's latest still shows as on the newest. Its age gives it away.
+- **Behind:** older firmware than the newest seen on its model, with the version to get to.
+- **Versions by model, newest first:** each model's versions with their release dates and devices, so a model running three different versions stands out.
+- **Age:** years since the installed BIOS was released, not since the device was bought. The median is shown for each model and for the collection.
+
+It uses default hardware inventory (PC BIOS). Its query is in [reports/BIOSVersions/BIOSVersions.sql](reports/BIOSVersions/BIOSVersions.sql).
+
+Shown here on a made-up fleet of 248 devices, because both VMs in the lab run the same virtual firmware:
+
+![BIOS versions, on a made-up sample fleet of 248 devices](docs/images/bios-versions.png)
+
 ## Install
 
 You need a reporting services point (if Microsoft's reports show under **Monitoring > Reporting > Reports** in the console, you have one) and permission to publish reports on that report server. From a copy of this repository:

@@ -25,14 +25,6 @@ Each item is tagged with where its data comes from.
 
 ## Backlog
 
-### 6. BIOS age and version spread by model
-
-**Data:** Inventory (PC BIOS: version and release date). **Lab:** yes, but one virtual BIOS.
-
-For each model: how many BIOS versions are in use, how old the installed firmware is, and the devices behind the newest version seen on that model. "Newest" means newest seen in the site, since no vendor catalog is used.
-
-Both lab VMs run the same virtual firmware, so the lab can't show a spread.
-
 ### 7. Client health
 
 **Data:** Client health, Discovery. **Lab:** yes, both healthy.
@@ -66,6 +58,7 @@ Items keep their numbers once done.
 - **2. Data-freshness footer** (November 27, 2026). Every report's page footer gives three things for its collection: the newest hardware inventory, the median age of the devices' latest inventory, and how many devices haven't sent any. The median says how current the figures are, where the newest alone wouldn't. All reports share one query, [reports/DataFreshness.sql](../reports/DataFreshness.sql).
 - **4. Windows releases** (November 27, 2026). The release each device runs against a target (by default the release Windows offers most of the devices), and for each device that's behind, Windows' own verdict on why. Two things changed from the plan. Support status is left out: the site's servicing data is stale, and still showed Windows 11 21H2 as current. And release names come from a list in the query, because the servicing data's names are in a view the report server's account can't read. The first report built with tools/RdlBuilder.psm1.
 - **5. Disk space** (November 28, 2026). Low and running out on C:, by model, with when each device will be low at its recent rate. The rate is a best-fit line through every free-space figure inventory history recorded, so one clean-up or one big download doesn't swing it. The history is read from v_HS_LOGICAL_DISK for the collection's members: fn_rbac_HS_LOGICAL_DISK returns current data, not history, when tested outside the report.
+- **6. BIOS versions** (November 28, 2026). The versions each model runs, newest first, how old the installed firmware is, and the devices behind the newest seen on their model, judged by release date because version strings don't compare across vendors.
 
 ## Dropped
 
