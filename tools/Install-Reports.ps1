@@ -66,8 +66,9 @@ if ($Name) { $files = @($files | Where-Object { $Name -contains $_.BaseName }) }
 if ($files.Count -eq 0) { throw 'No reports to publish.' }
 
 foreach ($file in $files) {
-    # FleetByModel.rdl is published as "Fleet by model", the way Microsoft names its reports.
-    $words = @([regex]::Split($file.BaseName, '(?<=[a-z])(?=[A-Z])'))
+    # FleetByModel.rdl is published as "Fleet by model", the way Microsoft names its reports, and
+    # Windows11Readiness.rdl as "Windows 11 readiness".
+    $words = @([regex]::Split($file.BaseName, '(?<=[a-z])(?=[A-Z0-9])|(?<=[0-9])(?=[A-Z])'))
     $title = (@($words[0]) + @($words | Select-Object -Skip 1 | ForEach-Object { $_.ToLower() })) -join ' '
 
     $definition = New-Object System.Xml.XmlDocument
