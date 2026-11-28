@@ -69,6 +69,21 @@ Shown here on a made-up fleet of 274 devices, because both VMs in the lab run th
 
 ![Windows releases, on a made-up sample fleet of 274 devices](docs/images/windows-releases.png)
 
+### Disk space
+
+Which devices are low on space on C:, which are heading that way, and when they'll get there, by model family and generation, so "the 128 GB models are all filling up" shows on its own.
+
+- **Low:** less than 10 GB free on C:. You choose the figure.
+- **Running out:** not low yet, but at its recent rate C: gets there within 30 days, which you also choose. The rate is the trend through every free-space figure hardware inventory recorded for C: over those days. Inventory history keeps each change until Delete Aged Inventory History removes it (90 days by default), and the trend needs at least 3 figures spread over a week.
+- **Running low, least free first:** the devices to act on, with when each will be low and its top user.
+- **Median free:** for each model and generation, and for the whole collection.
+
+It uses default hardware inventory (Logical Disk, and its history). Its query is in [reports/DiskSpace/DiskSpace.sql](reports/DiskSpace/DiskSpace.sql).
+
+Shown here on a made-up fleet of 248 devices. In the two-VM lab, both VMs are running out; one loses about 7.5 GB a week:
+
+![Disk space, on a made-up sample fleet of 248 devices](docs/images/disk-space.png)
+
 ## Install
 
 You need a reporting services point (if Microsoft's reports show under **Monitoring > Reporting > Reports** in the console, you have one) and permission to publish reports on that report server. From a copy of this repository:
@@ -89,7 +104,7 @@ Shows the rows the report would use, read with your own Windows account. Add `-O
 
 ## Changing a report
 
-Each report's query is the .sql file in its folder, and the same query is inside the .rdl. Windows releases is built from its queries by the `Build-Report.ps1` in its folder, which uses [tools/RdlBuilder.psm1](tools/RdlBuilder.psm1) for everything the reports share. To change it, edit the query or the script, run the script, then run `Install-Reports.ps1`. The older reports are edited as .rdl files; keep each one's query the same as its .sql.
+Each report's query is the .sql file in its folder, and the same query is inside the .rdl. A report with a `Build-Report.ps1` in its folder is built from its queries by that script, which uses [tools/RdlBuilder.psm1](tools/RdlBuilder.psm1) for everything the reports share. To change one, edit the query or the script, run the script, then run `Install-Reports.ps1`. Fleet by model, Boot times and crashes and Hardware lifecycle came first and are edited as .rdl files; keep each one's query the same as its .sql.
 
 The report server runs the queries as ConfigMgr's reporting account, whose database role (smsschm_users) can read the `v_` views and the `fn_rbac_` functions, but not everything an administrator can. A query that works in `Invoke-ReportQuery.ps1`, which runs as you, can still fail in the report, so use only what that role is granted.
 
