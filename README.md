@@ -99,6 +99,21 @@ Shown here on a made-up fleet of 248 devices, because both VMs in the lab run th
 
 ![BIOS versions, on a made-up sample fleet of 248 devices](docs/images/bios-versions.png)
 
+### Client health
+
+Which ConfigMgr clients need a look, by model family and generation. They're judged by the site's own client status settings, not by new thresholds.
+
+- **Inactive:** the site counts the client inactive, by its Client Status Settings (7 days by default).
+- **Failing health check:** the client's own health check failed, as the site reports it.
+- **Stale:** active, but its hardware inventory, policy requests or heartbeat discovery haven't reached the site in time. The report says which.
+- **What's wrong, most common first:** the counts behind those, so "40 devices stopped requesting policy" stands out from scattered failures.
+
+For each device, it shows the site's label for the client (such as Active/Pass) and its last contact, policy request, inventory and heartbeat, with the stale ones in red. On a model row, each date is the oldest among its devices. Its query is in [reports/ClientHealth/ClientHealth.sql](reports/ClientHealth/ClientHealth.sql).
+
+Shown here on a made-up fleet of 248 devices, because both clients in the lab are healthy:
+
+![Client health, on a made-up sample fleet of 248 devices](docs/images/client-health.png)
+
 ## Install
 
 You need a reporting services point (if Microsoft's reports show under **Monitoring > Reporting > Reports** in the console, you have one) and permission to publish reports on that report server. From a copy of this repository:

@@ -25,14 +25,6 @@ Each item is tagged with where its data comes from.
 
 ## Backlog
 
-### 7. Client health
-
-**Data:** Client health, Discovery. **Lab:** yes, both healthy.
-
-Devices that have stopped reporting, and devices whose hardware inventory, policy requests or heartbeat discovery are stale, with the result of the client's own health check.
-
-Both lab clients pass, so a failing case needs one VM's client stopped for a while.
-
 ### 8. BitLocker status by collection
 
 **Data:** BitLocker management. **Lab:** no data yet.
@@ -59,6 +51,7 @@ Items keep their numbers once done.
 - **4. Windows releases** (November 27, 2026). The release each device runs against a target (by default the release Windows offers most of the devices), and for each device that's behind, Windows' own verdict on why. Two things changed from the plan. Support status is left out: the site's servicing data is stale, and still showed Windows 11 21H2 as current. And release names come from a list in the query, because the servicing data's names are in a view the report server's account can't read. The first report built with tools/RdlBuilder.psm1.
 - **5. Disk space** (November 28, 2026). Low and running out on C:, by model, with when each device will be low at its recent rate. The rate is a best-fit line through every free-space figure inventory history recorded, so one clean-up or one big download doesn't swing it. The history is read from v_HS_LOGICAL_DISK for the collection's members: fn_rbac_HS_LOGICAL_DISK returns current data, not history, when tested outside the report.
 - **6. BIOS versions** (November 28, 2026). The versions each model runs, newest first, how old the installed firmware is, and the devices behind the newest seen on their model, judged by release date because version strings don't compare across vendors.
+- **7. Client health** (November 28, 2026). Clients that are inactive, failing their own health check, or stale on inventory, policy or heartbeat, judged by the site's own client status settings rather than new thresholds, with what's wrong counted, most common first.
 
 ## Dropped
 
